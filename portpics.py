@@ -45,12 +45,11 @@ def get_options():
     return options
 
 def get_filenames(options):
-    # TODO: sub-directories!
     # construct the wildcard-patterns then feeded to glob in order to obtain all files
     if not options.recursive:
         patterns = [ path.join(options.indir, "*.%s" % ext) for ext in pic_exts[options.ext] ]
     else:
-        patterns = [ path.join(directory, "*.%s" % ext) for ext in pic_exts[options.ext] for directory in walk(options.indir) ]
+        patterns = [ path.join(directory[0], "*.%s" % ext) for ext in pic_exts[options.ext] for directory in walk(options.indir) ]
     # collect all file names
     fnames = []
     for pattern in patterns: fnames.extend(glob(pattern))

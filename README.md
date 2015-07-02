@@ -25,3 +25,6 @@ Example of usage:
  * The only raw files handled right now are '.srw' files (which is trivial
    to enhance).
  * Maybe get rid of the dependence on exifread
+ * Search through subfolders if desired
+ * Add compression for jpeg files
+ 
