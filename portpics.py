@@ -14,6 +14,7 @@ from warnings import warn
 pic_exts = { 
              "jpg" : ["jpg", "JPG", "jpeg", "JPEG"],
              "raw" : ["srw", "SRW"],
+             "srw" : ["srw", "SRW"],
              "png" : ["png", "PNG"]
            }
 
@@ -28,6 +29,7 @@ def get_options():
     parser.add_option("-o", "--outdir",    dest="outdir",  type="string")
     parser.add_option("-e", "--extension", dest="ext",     type="string", default="jpg")
     parser.add_option("-p", "--prefix",    dest="prefix",  type="string", default='%y/%m/%d')
+    parser.add_option("-c", "--command",   dest="command", type="string", default='')
     # flags
     parser.add_option("-d", "--delete",    dest="delete",  action="store_true", default=False)
     parser.add_option("-s", "--sidecar",   dest="sidecar", action="store_true", default=False)
@@ -54,33 +56,35 @@ def get_filenames(options):
     if options.verbose: print("Found %d files:" % len(files), "\n", "\n".join(f for f in files))
     return fnames
 
-def copy_or_move(picture, outfolder, options):
+
+def process_file(picture, outfolder, options):
     outfile = path.join(outfolder, path.basename(picture))
-    # TODO: implement all options here
-    # TODO: make this independent of OS
-    # TODO: should probably copy/move all files in one command
-    #if options.delete and options.replace:
-        #print("\t%s  ->  %s" % (picture, outfile))
-        ##call(["mv", picture, outfile])
-    #if options.delete and not options.replace:
-        #if path.isfile(outfile):
-            #print("\t%s  ==  %s" % (picture, outfile))
-        #else:
-            #print("\t%s  ->  %s" % (picture, outfile))
-            ##call(["mv", picture, outfile])
-    if not options.delete and options.replace:
-        print("  %s  =>  %s" % (picture, outfile))
-        call(["cp", picture, outfile])
-    if not options.delete and not options.replace:
-        if path.isfile(outfile):
-            print("  %s  ==  %s" % (picture, outfile))
-        else:
+    command = options.command.replace("%f", outfile)
+    if options.delete:
+        print("Option delete not yet implemented")
+        pass
+    else:
+        if options.replace:
             print("  %s  =>  %s" % (picture, outfile))
             call(["cp", picture, outfile])
+            if command != "":
+                print(" ", command)
+                call(command.split())
+        else:
+            if path.isfile(outfile):
+                print("  %s  ==  %s" % (picture, outfile))
+            else:
+                print("  %s  =>  %s" % (picture, outfile))
+                call(["cp", picture, outfile])
+                if command != "":
+                    print(" ", command)
+                    call(command.split())
+    # handle sidecar files if specified
+    if options.sidecar: copy_or_move_sidecar(picture, outfolder, options)
 
 
 def copy_or_move_sidecar(picture, outfolder, options):
-    possible_sidecar_files = [ picture + ext for ext in sidecar_exts ]
+    possible_sidecar_files = [ picture + "." + ext for ext in sidecar_exts ]
     for sidecar_file in possible_sidecar_files: 
         if path.isfile(sidecar_file): 
             copy_or_move(sidecar_file, outfolder, options)
@@ -112,11 +116,15 @@ def create_folder(folder):
         print("-" * (1 + len(folder)))
     call(["mkdir", "-p", folder])
 
+
+
 def overview():
     print()
     print(" == : file already existed; not replaced")
     print(" => : file was copied")
     print(" -> : file was moved")
+    print("Done!")
+    print()
 
 def portpics():
     # parse the command line arguments for options
@@ -130,9 +138,7 @@ def portpics():
     for outfolder in foldermap:
         create_folder(outfolder)
         for picture in foldermap[outfolder]:
-            copy_or_move(picture, outfolder, options)
-            if options.sidecar: 
-                copy_or_move_sidecar(picture, outfolder, options)
+            process_file(picture, outfolder, options)
     overview()
 
 
