@@ -5,7 +5,7 @@
 
 from optparse import OptionParser
 from glob import glob
-from os import path
+from os import path, walk
 from subprocess import call
 from exifread import process_file
 from warnings import warn
@@ -30,11 +30,12 @@ def get_options():
     parser.add_option("-e", "--extension", dest="ext",     type="string", default="jpg")
     parser.add_option("-p", "--prefix",    dest="prefix",  type="string", default='%y/%m/%d')
     parser.add_option("-c", "--command",   dest="command", type="string", default='')
+    parser.add_option("-c", "--command",   dest="command", type="string", default='')
     # flags
-    parser.add_option("-d", "--delete",    dest="delete",  action="store_true", default=False)
-    parser.add_option("-s", "--sidecar",   dest="sidecar", action="store_true", default=False)
-    parser.add_option("-v", "--verbose",   dest="verbose", action="store_true", default=False)
-    parser.add_option("-r", "--replace",   dest="replace", action="store_true", default=False)
+    parser.add_option("-R", "--recursive", dest="recursive", action="store_true", default=False)
+    parser.add_option("-s", "--sidecar",   dest="sidecar",   action="store_true", default=False)
+    parser.add_option("-v", "--verbose",   dest="verbose",   action="store_true", default=False)
+    parser.add_option("-r", "--replace",   dest="replace",   action="store_true", default=False)
     # create th options object to be returned
     options, args = parser.parse_args()
     # before doing so, some sanity checks
@@ -47,7 +48,10 @@ def get_options():
 def get_filenames(options):
     # TODO: sub-directories!
     # construct the wildcard-patterns then feeded to glob in order to obtain all files
-    patterns = [ path.join(options.indir, "*.%s" % ext) for ext in pic_exts[options.ext] ]
+    if not options.recursive
+        patterns = [ path.join(options.indir, "*.%s" % ext) for ext in pic_exts[options.ext] ]
+    else
+        patterns = [ path.join(directory, "*.%s" % ext) for ext in pic_exts[options.ext] for directory in walk(options.indir) ]
     # collect all file names
     fnames = []
     for pattern in patterns: fnames.extend(glob(pattern))
