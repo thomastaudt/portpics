@@ -59,7 +59,7 @@ def get_filenames(options):
     return fnames
 
 
-def process_file(picture, outfolder, options):
+def process_picture(picture, outfolder, options):
     outfile = path.join(outfolder, path.basename(picture))
     command = options.command.replace("%f", outfile)
     if options.delete:
@@ -140,7 +140,7 @@ def portpics():
     for outfolder in foldermap:
         create_folder(outfolder)
         for picture in foldermap[outfolder]:
-            process_file(picture, outfolder, options)
+            process_picture(picture, outfolder, options)
     overview()
 
 
