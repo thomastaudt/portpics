@@ -35,6 +35,7 @@ def get_options():
     parser.add_option("-s", "--sidecar",   dest="sidecar",   action="store_true", default=False)
     parser.add_option("-v", "--verbose",   dest="verbose",   action="store_true", default=False)
     parser.add_option("-r", "--replace",   dest="replace",   action="store_true", default=False)
+    parser.add_option("-d", "--delete",    dest="delete",    action="store_true", default=False)
     # create th options object to be returned
     options, args = parser.parse_args()
     # before doing so, some sanity checks
