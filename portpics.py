@@ -30,7 +30,6 @@ def get_options():
     parser.add_option("-e", "--extension", dest="ext",     type="string", default="jpg")
     parser.add_option("-p", "--prefix",    dest="prefix",  type="string", default='%y/%m/%d')
     parser.add_option("-c", "--command",   dest="command", type="string", default='')
-    parser.add_option("-c", "--command",   dest="command", type="string", default='')
     # flags
     parser.add_option("-R", "--recursive", dest="recursive", action="store_true", default=False)
     parser.add_option("-s", "--sidecar",   dest="sidecar",   action="store_true", default=False)
@@ -48,9 +47,9 @@ def get_options():
 def get_filenames(options):
     # TODO: sub-directories!
     # construct the wildcard-patterns then feeded to glob in order to obtain all files
-    if not options.recursive
+    if not options.recursive:
         patterns = [ path.join(options.indir, "*.%s" % ext) for ext in pic_exts[options.ext] ]
-    else
+    else:
         patterns = [ path.join(directory, "*.%s" % ext) for ext in pic_exts[options.ext] for directory in walk(options.indir) ]
     # collect all file names
     fnames = []
