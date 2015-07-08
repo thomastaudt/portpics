@@ -64,6 +64,7 @@ def process_picture(picture, outfolder, options):
     outfile = path.join(outfolder, path.basename(picture))
     command = options.command.replace("%f", outfile)
     if options.delete:
+        #TODO
         print("Option delete not yet implemented")
         pass
     else:
@@ -89,8 +90,15 @@ def process_picture(picture, outfolder, options):
 def copy_or_move_sidecar(picture, outfolder, options):
     possible_sidecar_files = [ picture + "." + ext for ext in sidecar_exts ]
     for sidecar_file in possible_sidecar_files: 
+        outfile = path.join(outfolder, path.basename(sidecar_file))
         if path.isfile(sidecar_file): 
-            copy_or_move(sidecar_file, outfolder, options)
+            if options.delete:
+                #TODO
+                print("Option delete not yet implemented")
+                pass
+            else:
+                print("  %s  =>  %s" % (sidecar_file, outfile))
+                call(["cp", sidecar_file, outfile])
 
 
 # the foldermap is a dict, that maps target folder names to lists of source
