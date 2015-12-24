@@ -61,6 +61,8 @@ def get_options(supported_extensions):
     # Input directory must be specified
     if (options.indir  is None):
         raise Exception("Directory containing the input files must be specified, see --help")
+    elif not path.isdir(options.indir):
+        raise Exception("Input directory '%s' does not exist" % options.indir)
     # Output directory must be specified
     if (options.outdir is None):
         raise Exception("Target directory for the output files must be specified, see --help")
@@ -118,14 +120,14 @@ def process_picture(inpath, date_repls, outfolder, options, num_current, num_tot
     else:
         if options.replace:
             log(options, "%3d%%: Copy   %s   to   %s" % (num_current/num_total*100, path.basename(inpath), outpath))
-            call(["cp", inpath, outpath])
+            copy_file(inpath, outpath)
             if command != "":
                 log(options, command)
                 call(command.split())
         else:
             if not path.isfile(outpath):
                 log(options, "%3d%%: Copy   %s   to   %s" % (num_current/num_total*100, path.basename(inpath), outpath))
-                call(["cp", inpath, outpath])
+                copy_file(inpath, outpath)
                 if command != "":
                     log(options, ("%3d%%: " % num_current/num_total*100) + command)
                     call(command.split())
@@ -143,8 +145,7 @@ def process_sidecar(inpath, outpath, options):
                 print("Option delete not yet implemented")
                 pass
             else:
-                #log(options, "%3d%%: Copy %s to %s" % (num_current/num_total*100, sidecar_file, outpath))
-                call(["cp", sidecar_file, outpath])
+                copy_file(sidecar_file, outpath)
 
 
 # the foldermap is a dict, that maps target folder names to lists of source
@@ -167,17 +168,6 @@ def create_datemap(fnames, options):
     return datemap
 
 
-def create_folder(folder):
-    call(["mkdir", "-p", folder])
-
-def copy_file(src, dest):
-    pass
-def move_file(src, dest):
-    pass
-
-def log(options, text):
-    if not options.quiet: print(text, end="\r")
-
 def process_pictures(datemap, options, num_total):
     # Count how many pictures have been processed so that a percentage can be printed
     num_current = 0
@@ -194,6 +184,19 @@ def process_pictures(datemap, options, num_total):
             num_current = num_current + 1
             process_picture(inpath, date_repls, outfolder, options, num_current, num_total)
     log(options, "\nDone!")
+
+
+def create_folder(folder):
+    call(["mkdir", "-p", folder])
+
+def copy_file(src, dest):
+    call(["cp", src, dest])
+
+def move_file(src, dest):
+    call(["mv", src, dest])
+
+def log(options, text):
+    if not options.quiet: print(text, end="\r")
 
 
 def portpics():
