@@ -1,21 +1,20 @@
 #!/usr/bin/env python3
 
-
 #TODO:
-    #   o replace exceptions
-    #   o OS-independence
+    #   o testing
     #   o compression?
     #   o ssh-support?
 
 # standard modules
-from os           import path, walk
+from sys          import exit, stderr
+from shutil       import copy, copy2, move
+from os           import path, walk, makedirs
 from glob         import glob
 from subprocess   import call
-from warnings     import warn
 from functools    import reduce
+from argparse     import ArgumentParser
 
 # non-standard modules
-from optparse     import OptionParser
 from exifread     import process_file
 
 
@@ -50,41 +49,41 @@ def get_supported_extensions():
 
 
 def get_options(supported_extensions):
-    parser = OptionParser()
+    parser = ArgumentParser("Portpics -- Copy/move image files based on exif date information")
     # string options
-    parser.add_option("-i", "--indir",      dest="indir",   type="string")
-    parser.add_option("-o", "--outdir",     dest="outdir",  type="string")
-    parser.add_option("-e", "--extensions", dest="exts",    type="string", default="jpg")
-    parser.add_option("-n", "--name",       dest="name",    type="string", default='%f')
-    parser.add_option("-c", "--command",    dest="command", type="string", default='')
-    parser.add_option("-D", "--digits",     dest="digits",  type="int",    default=0)
-    parser.add_option("-O", "--offset",     dest="offset",  type="int",    default=0)
+    parser.add_argument("-i", "--indir",      dest="indir"                         )
+    parser.add_argument("-o", "--outdir",     dest="outdir"                        )
+    parser.add_argument("-e", "--extensions", dest="exts",     default="jpg"       )
+    parser.add_argument("-n", "--name",       dest="name",     default='%f'        )
+    parser.add_argument("-c", "--command",    dest="command",  default=''          )
+    parser.add_argument("-D", "--digits",     dest="digits",   default=0, type=int )
+    parser.add_argument("-O", "--offset",     dest="offset",   default=0, type=int )
     # flags
-    parser.add_option("-R", "--recursive",  dest="recursive", action="store_true", default=False)
-    parser.add_option("-s", "--sidecar",    dest="sidecar",   action="store_true", default=False)
-    parser.add_option("-v", "--verbose",    dest="verbose",   action="store_true", default=False)
-    parser.add_option("-q", "--quiet",      dest="quiet",     action="store_true", default=False)
-    parser.add_option("-r", "--replace",    dest="replace",   action="store_true", default=False)
-    parser.add_option("-d", "--delete",     dest="delete",    action="store_true", default=False)
+    parser.add_argument("-R", "--recursive",  dest="recursive", action="store_true", default=False)
+    parser.add_argument("-s", "--sidecar",    dest="sidecar",   action="store_true", default=False)
+    parser.add_argument("-v", "--verbose",    dest="verbose",   action="store_true", default=False)
+    parser.add_argument("-q", "--quiet",      dest="quiet",     action="store_true", default=False)
+    parser.add_argument("-r", "--replace",    dest="replace",   action="store_true", default=False)
+    parser.add_argument("-d", "--delete",     dest="delete",    action="store_true", default=False)
 
     # Create the options object to be returned
-    options, args = parser.parse_args()
+    options = parser.parse_args()
 
     # Before doing so, some sanity checks:
     # Input directory must be specified and existent
     if (options.indir  is None):
-        raise Exception("Directory containing the input files must be specified, see --help")
+        error_msg("Directory containing the input files must be specified, see --help")
     elif not path.isdir(options.indir):
-        raise Exception("Input directory '%s' does not exist" % options.indir)
+        error_msg("Input directory '%s' does not exist" % options.indir)
 
     # Output directory must be specified
     if (options.outdir is None):
-        raise Exception("Target directory for the output files must be specified, see --help")
+        error_msg("Target directory for the output files must be specified, see --help")
 
     # Check if all given extensions are 'supported'
     options.exts = options.exts.split(",") # if several extensions are given simultaneously
     if any(ext not in supported_extensions[0] for ext in options.exts):
-        raise Exception("At least one of the given extensions %s is not supported." % (tuple(options.exts)),)
+        error_msg("At least one of the given extensions %s is not supported." % (tuple(options.exts)),)
 
     # Collect all extensions that are interesting
     options.pic_exts = reduce( 
@@ -117,9 +116,10 @@ def get_filenames(options):
     fnames.sort()
 
     # Print some info if desired
+    if fnames == []: error_msg("No files with the specified extensions found")
     if options.verbose: 
-        print(
-               "\nFound %d matching file/files:" % len(fnames) + 
+        print( 
+               "\nFound %d matching file/files\n" % len(fnames) +
                "\n" + "\n".join("  " + f for f in fnames)
              )
     return fnames
@@ -134,7 +134,7 @@ def create_datemap(fnames, options):
         try: 
             date = tuple(map(int, tags['EXIF DateTimeOriginal'].printable.split(' ')[0].split(':')))
         except KeyError:
-            warn("Exif tag 'DateTimeOriginal' could not be read in file %s. This file will not be processed!" % fname)
+            warn_msg("Exif tag 'DateTimeOriginal' could not be read in file %s. This file will not be processed!" % fname)
             continue
         if date in datemap: datemap[date].append(fname)
         else: datemap[date] = [fname]
@@ -168,7 +168,7 @@ def process_pictures(datemap, options, num_total):
             process_picture(inpath, date_repls, outfolder, options, num_current, num_total)
 
     # Message to signal that the program finished
-    log(options, "\nDone!\n")
+    log_msg(options, "\nDone! (Processed %d pictures)\n" % num_total)
 
 
 def process_picture(inpath, date_repls, outfolder, options, num_current, num_total):
@@ -193,15 +193,15 @@ def process_picture(inpath, date_repls, outfolder, options, num_current, num_tot
     # All preparations completed; now copy/move the files
     if options.replace or not path.isfile(outpath):
         perc = num_current/num_total*100
-        msg = "%3d%%%%: %s  %s  to  %s" % (perc, "%s", path.basename(inpath), outpath) 
+        msg = "%3d%%%%: %s  '%s'  to  '%s'" % (perc, "%s", path.basename(inpath), outpath) 
         if options.delete: 
-            log(options, msg % "Move")
+            log_msg(options, msg % "Move")
             move_file(inpath, outpath) 
         else:
-            log(options, msg % "Copy")
+            log_msg(options, msg % "Copy")
             copy_file(inpath, outpath) 
         if command != "":
-            log(options, ("%3d%%" % perc) + command)
+            log_msg(options, ("%3d%%" % perc) + command)
             call(command.split())
 
     # handle sidecar files
@@ -220,16 +220,24 @@ def process_sidecar(inpath, outpath, options):
 
 
 def create_folder(folder):
-    call(["mkdir", "-p", folder])
+    makedirs(folder, exist_ok=True)
 
 def copy_file(src, dest):
-    call(["cp", src, dest])
+    copy2(src, dest)
 
 def move_file(src, dest):
-    call(["mv", src, dest])
+    move(src, dest)
 
-def log(options, text):
+def log_msg(options, text):
+    # This is not nice...
     if not options.quiet: print(text, end="\r")
+
+def error_msg(text):
+    print("Error:", text, file=stderr)
+    exit()
+
+def warn_msg(text):
+    print("Warning:", text, file=stderr)
 
 
 def portpics():
