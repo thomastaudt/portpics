@@ -175,10 +175,10 @@ def process_picture(inpath, date_repls, outfolder, options, num_current, num_tot
     # The markers %y, %m, %d, %f, %n shall be replaced by 
     # year, month, day, (orig) filname and num_current for the new filename
     nd = str(options.digits if options.digits != 0 else len(str(num_total + options.offset)))
-    filname     = path.basename(inpath)
+    filename    = path.basename(inpath)
     filename_we = path.splitext(filename)[0] # we = without extension
     repls       = date_repls + (("%f", filename), 
-                                ("%b", basename), 
+                                ("%b", filename_we), 
                                 ("%n", ("%0" + nd + "d") % (num_current + options.offset)))
     outname     = reduce(lambda a,b: a.replace(*b), repls, options.name)
     outname_we  = path.splitext(outname)[0] # we = without extension
