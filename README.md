@@ -5,7 +5,7 @@ Simple python3 utility script that copies or moves images from an input
 folder to an output folder hierarchy that may depend on exif date
 information of the pictures. This means that the specified output folder
 may contain the placeholders '%d', '%m', or '%y' for the day, month, or
-year of the images 'EXIF DateTimeOriginal' information. The script can
+year of the image's 'EXIF DateTimeOriginal' information. The script can
 also search for sidecar (.xmp) files and perform the same copy / move
 operations on them as on the pictures.
 
@@ -28,6 +28,7 @@ Placeholders:
 %m: month
 %d: day
 %f: file name
+%b: base name (file name without extension)
 %n: processing number (each picture to be processed obtains such a number)
 
 
@@ -40,12 +41,12 @@ Usage: Portpics -- Copy/move image files based on exif date information
 -o,--output        output directory
 -e,--extensions    comma separated list of file extensions that are
                    searched for in the input directory [default: jpg]
--n,--name          name of the output files; may contain %y,%m,%d,%f,%n;
+-n,--name          name of the output files; may contain %y,%m,%d,%f,%b,%n;
                    in this case %f is the basename of the original
                    target file [default: %f]
 -c,--command       command that shall be applied on the copied files;
-                   may contain %y,%m,%d,%f,%n; in this case %f is the
-                   basename of the copied file
+                   may contain %y,%m,%d,%f,%b,%n; in this case %f and %b are the
+                   names of the copied file
 -D,--digits        number of digits that %n is replaced with; e.g. for
                    10 pictures and -p 3 the values of %n would go from
                    001 to 010 [default: digits of number of pictures]

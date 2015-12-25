@@ -50,7 +50,7 @@ def get_supported_extensions():
 
 def get_options(supported_extensions):
     parser = ArgumentParser("Portpics -- Copy/move image files based on exif date information")
-    # string options
+    # string/int options
     parser.add_argument("-i", "--indir",      dest="indir"                         )
     parser.add_argument("-o", "--outdir",     dest="outdir"                        )
     parser.add_argument("-e", "--extensions", dest="exts",     default="jpg"       )
@@ -175,8 +175,13 @@ def process_picture(inpath, date_repls, outfolder, options, num_current, num_tot
     # The markers %y, %m, %d, %f, %n shall be replaced by 
     # year, month, day, (orig) filname and num_current for the new filename
     nd = str(options.digits if options.digits != 0 else len(str(num_total + options.offset)))
-    repls = date_repls + (("%f", path.basename(inpath)), ("%n", ("%0" + nd + "d") % (num_current + options.offset)))
-    outname = reduce(lambda a,b: a.replace(*b), repls, options.name)
+    filname     = path.basename(inpath)
+    filename_we = path.splitext(filename)[0] # we = without extension
+    repls       = date_repls + (("%f", filename), 
+                                ("%b", basename), 
+                                ("%n", ("%0" + nd + "d") % (num_current + options.offset)))
+    outname     = reduce(lambda a,b: a.replace(*b), repls, options.name)
+    outname_we  = path.splitext(outname)[0] # we = without extension
 
     # Get the full destination path for the picture
     outpath = path.join(outfolder, outname)
@@ -187,7 +192,7 @@ def process_picture(inpath, date_repls, outfolder, options, num_current, num_tot
     if command != "": 
         # The markers %y, %m, %d, %f, %n shall be replaced by 
         # year, month, day, (new) filname and num_current for the command
-        crepls = date_repls + (("%f", outname), ("%n", str(num_current)))
+        crepls = date_repls + (("%f", outname), ("%b", outname_we), ("%n", str(num_current)))
         command = reduce(lambda a,b: a.replace(*b), repls, command)
 
     # All preparations completed; now copy/move the files
