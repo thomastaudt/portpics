@@ -57,7 +57,8 @@ def get_options(supported_extensions):
     parser.add_option("-e", "--extensions", dest="exts",    type="string", default="jpg")
     parser.add_option("-n", "--name",       dest="name",    type="string", default='%f')
     parser.add_option("-c", "--command",    dest="command", type="string", default='')
-    parser.add_option("-p", "--digits",     dest="digits",  type="int",    default=0)
+    parser.add_option("-D", "--digits",     dest="digits",  type="int",    default=0)
+    parser.add_option("-O", "--offset",     dest="offset",  type="int",    default=0)
     # flags
     parser.add_option("-R", "--recursive",  dest="recursive", action="store_true", default=False)
     parser.add_option("-s", "--sidecar",    dest="sidecar",   action="store_true", default=False)
@@ -127,7 +128,6 @@ def get_filenames(options):
 
 def create_datemap(fnames, options):
     datemap   = {}
-    #foldermap = {}
     for fname in fnames:
         f = open(fname, 'rb')
         tags = process_file(f, details=False, stop_tag="DateTimeOriginal", strict=True)
@@ -174,8 +174,8 @@ def process_pictures(datemap, options, num_total):
 def process_picture(inpath, date_repls, outfolder, options, num_current, num_total):
     # The markers %y, %m, %d, %f, %n shall be replaced by 
     # year, month, day, (orig) filname and num_current for the new filename
-    nd = str(options.digits if options.digits != 0 else len(str(num_total)))
-    repls = date_repls + (("%f", path.basename(inpath)), ("%n", ("%0" + nd + "d") % num_current))
+    nd = str(options.digits if options.digits != 0 else len(str(num_total + options.offset)))
+    repls = date_repls + (("%f", path.basename(inpath)), ("%n", ("%0" + nd + "d") % (num_current + options.offset)))
     outname = reduce(lambda a,b: a.replace(*b), repls, options.name)
 
     # Get the full destination path for the picture

@@ -1,30 +1,74 @@
 ## portpics.py
+Copy pictures to folders depending on the date of 
 
-Simple python 3 utility script that copies / moves images from an input
-folder to an output folder hierarchy. The files may be folder-prefixed by a string
-containing %d, %m, or %y for the day, month, or year that the image was
-created (it reads this as exif information). The default option is
---prefix="%y/%m/%d". The script can also search for sidecar xmp files and
-perform the same copy / move operations on them as for the pictures
-themselves.
+Simple python3 utility script that copies or moves images from an input
+folder to an output folder hierarchy that may depend on exif date
+information of the pictures. This means that the specified output folder
+may contain the placeholders '%d', '%m', or '%y' for the day, month, or
+year of the images 'EXIF DateTimeOriginal' information. The script can
+also search for sidecar (xmp) files and perform the same copy / move
+operations on them as on the pictures.
+
+One can also specify a command to be run after copying the single
+files, so that the pictures may e.g. be compressed.
 
 ### Requirements
 
-For the script to work, `import exifread` must succeed in python 3.
-Currently only tested for linux (uses `mv`, `mkdir`, and `cp`), but
+For the script to work, `from exifread import process_file` must succeed in
+python3 (this requires the `exifread` package).
+Currently only tested on linux (uses `mv`, `mkdir`, and `cp`), but
 this is probably subject to change.
 
+### Description
+
+### Options
+
+%y: year
+%m: month
+%d: day
+%f: file name
+%n: processing number (each picture to be processed obtains such a number)
+
+* -i,--input         input directory
+* -o,--output        output directory
+* -e,--extensions    comma separated list of file extensions that are
+                     searched for in the input directory [default: jpg]
+* -n,--name          name of the output files; may contain %y,%m,%d,%f,%n;
+                     in this case %f is the basename of the original
+                     target file [default: %f]
+* -c,--command       command that shall be applied on the copied files;
+                     may contain %y,%m,%d,%f,%n; in this case %f is the
+                     basename of the copied file
+* -D,--digits        number of digits that %n is replaced with; e.g. for
+                     10 pictures and -p 3 the values of %n would go from
+                     001 to 010 [default: digits of number of pictures]
+* -O,--offset        offset of %n; -O 10 would mean that %n starts at 11
+                     instead of at 1. (-D and -O allow to get a consistent
+                     numbering with %n between different runs of portpics)
+                     [default: 0]
+
+* -R,--recursive     flag; if given the input directory is searched
+                     recursively
+* -s,--sidecar       flag; if given sidecar files (.xmp, .XMP) are also
+                     copied / moved
+* -v,--verbose       flag; if given more informations are printed
+* -q,--quiet         flag; causes the script to run quietly
+* -r,--replace       flag; if given target files that already exist are
+                     overwritten (by default they are not!)
+* -d,--delete        flag; if given the pictures are moved to their
+                     destination instead of copied.
+
 ### Examples
+
 Example of usage:
 ```
-./portpics.py -i /media/sdc1/DCIM/ -o ~/pictures/jpegs/ -e jpeg -p "%y_%m_%d"
+./portpics.py -i /media/mmcblk0p1/DCIM/ -o ~/pictures/%y/%m/%d -e jpeg,raw
+./portpics.py -i ... -o ... -e jpeg -c 'convert %f -resize 2000 -quality 70% small_%f'
 ```
 
 ### TODO
- * Moving the pictures (instead of copying them) does not work at the moment.
- * The only raw files handled right now are '.srw' files (which is trivial
-   to enhance).
- * Maybe get rid of the dependence on exifread
- * Search through subfolders if desired
- * Add compression for jpeg files
- 
+ * Replace Exceptions
+ * OS-Independence
+ * Compression?
+ * SSH?
+ * Sort by date so that %n is deterministic on the pictures
