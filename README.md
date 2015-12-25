@@ -70,8 +70,8 @@ Usage: Portpics -- Copy/move image files based on exif date information
 
 Examples of usage:
 ```
-./portpics.py -i /media/mmcblk0p1/DCIM/ -o ~/pictures/%y/%m/%d -e jpeg,raw
-./portpics.py -i ... -o ... -e jpeg -c 'convert %f -resize 2000 -quality 70% small_%f'
+./portpics.py -i /media/mmcblk0p1/DCIM/ -o ~/pictures/%y/%m/%d -e jpg,raw
+./portpics.py -i ... -o ... -e jpg -c 'convert %f -resize 2000 -quality 70% small_%f'
 ```
 
 ### TODO
