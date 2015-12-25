@@ -1,12 +1,12 @@
 ## portpics.py
-Copy pictures to folders based on their exif date information
+Copy pictures to folders based on their exif date information.
 
 Simple python3 utility script that copies or moves images from an input
 folder to an output folder hierarchy that may depend on exif date
 information of the pictures. This means that the specified output folder
 may contain the placeholders '%d', '%m', or '%y' for the day, month, or
 year of the images 'EXIF DateTimeOriginal' information. The script can
-also search for sidecar (xmp) files and perform the same copy / move
+also search for sidecar (.xmp) files and perform the same copy / move
 operations on them as on the pictures.
 
 One can also specify a command to be run after copying the single
@@ -16,17 +16,25 @@ files, so that the pictures may e.g. be compressed.
 
 For the script to work, `from exifread import process_file` must succeed in
 Python 3.2 or above (this requires the `exifread` package).
-Currently only tested on linux (uses `mv`, `mkdir`, and `cp`), but
-this is probably subject to change.
+The script should work on every OS reasobably supported by python, but only
+linux is tested by the author.
 
 ### Options
 
 ```
+Placeholders:
+
 %y: year
 %m: month
 %d: day
 %f: file name
 %n: processing number (each picture to be processed obtains such a number)
+
+
+Usage: Portpics -- Copy/move image files based on exif date information
+       [-h] [-i INDIR] [-o OUTDIR] [-e EXTS] [-n NAME] [-c COMMAND]
+       [-D DIGITS] [-O OFFSET] [-R] [-s] [-v] [-q] [-r] [-d]
+
 
 -i,--input         input directory
 -o,--output        output directory
