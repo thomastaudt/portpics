@@ -59,7 +59,7 @@ Usage: Portpics -- Copy/move image files based on exif date information
                    recursively
 -s,--sidecar       flag; if given sidecar files (.xmp, .XMP) are also
                    copied / moved
--v,--verbose       flag; if given more informations are printed
+-v,--verbose       flag; if given more information are printed
 -q,--quiet         flag; causes the script to run quietly
 -r,--replace       flag; if given target files that already exist are
                    overwritten (by default they are not!)
