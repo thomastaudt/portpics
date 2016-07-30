@@ -16,8 +16,7 @@ files, so that the pictures may e.g. be compressed.
 
 For the script to work, `from exifread import process_file` must succeed in
 Python 3.2 or above (this requires the `exifread` package).
-The script should work on every OS reasobably supported by python, but only
-linux is tested by the author.
+The script should work on every OS, but only linux is tested by the author.
 
 ### Options
 
@@ -55,16 +54,15 @@ Usage: Portpics -- Copy/move image files based on exif date information
                    numbering with %n between different runs of portpics)
                    [default: 0]
 
--R,--recursive     flag; if given the input directory is searched
-                   recursively
--s,--sidecar       flag; if given sidecar files (.xmp, .XMP) are also
-                   copied / moved
--v,--verbose       flag; if given more information are printed
--q,--quiet         flag; causes the script to run quietly
--r,--replace       flag; if given target files that already exist are
-                   overwritten (by default they are not!)
--d,--delete        flag; if given the pictures are moved to their
-                     destination instead of copied.
+-R,--recursive     if given the input directory is searched recursively
+-s,--sidecar       if given sidecar files (.xmp, .XMP) are also copied
+                   / moved
+-v,--verbose       if given more information is printed
+-q,--quiet         causes the script to run quietly
+-r,--replace       if given target files that already exist are overwritten
+                   (by default they are not!)
+-d,--delete        if given the pictures are moved to their destination
+                   instead of copied.
 ```
 
 ### Examples

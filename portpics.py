@@ -207,7 +207,7 @@ def process_picture(inpath, date_repls, outfolder, options, num_current, num_tot
             copy_file(inpath, outpath) 
         if command != "":
             log_msg(options, ("%3d%%" % perc) + command)
-            call(command.split())
+            call(command.split(), cwd=outfolder)
 
     # handle sidecar files
     if options.sidecar: process_sidecar(inpath, outpath, options)
